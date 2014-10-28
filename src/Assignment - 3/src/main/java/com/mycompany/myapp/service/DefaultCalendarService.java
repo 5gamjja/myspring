@@ -31,7 +31,16 @@ public class DefaultCalendarService implements CalendarService {
 
 	@Autowired
 	private PlatformTransactionManager transactionManager;
+	
+	public void setTransactionManager(PlatformTransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
+	}
 
+	
+	public void setEventDao(EventDao eventDao) {
+		this.eventDao = eventDao;
+	}
+	
 	/* CalendarUser */
 	@Override
 	public CalendarUser getUser(int id) {
@@ -135,7 +144,6 @@ public class DefaultCalendarService implements CalendarService {
 		// 트랜잭션 관련 코딩 필요함
 		TransactionStatus status = this.transactionManager
 				.getTransaction(new DefaultTransactionDefinition());
-		
 		try {
 			List<Event> events = eventDao.findAllEvents();
 			for (Event event : events) {

@@ -112,23 +112,18 @@ public class JdbcEventDao implements EventDao {
 		return this.jdbcTemplate.query("select * from events where event_id = ?", rowMapper, eventLevel);
 	}
 
-	//this.jdbcTemplate.update("update events SET event_level = ? where id = ?",
-	//		event.getEventLevel().intValue(), event.getId());
 	@Override
     public void updateEvent(Event event) {
 		// TODO Assignment 3
 		// 인자로 받은 이벤트가 지닌 각 필드 값으로 해당 이벤트 DB 테이블 내 칼럼을 업데이트 한다.
+		//sql문 when 을 그냥 사용시 에러가 발생
+		//`when` 으로 묶으면 에러가 없음
 		
-		//calendarServiceTest에서 사용 용도
-		this.jdbcTemplate.update("update events SET event_level = ? where id = ?",
-				event.getEventLevel().intValue(), event.getId());
-		
-		//기존 구현 Service에서 에러가 나옴
-		/*this.jdbcTemplate.update("update events SET summary = ? description = ? owner = ? "
-				+ "num_likes = ? event_level = ? where id = ?",
-				event.getSummary(),	event.getDescription(), event.getOwner().getId(),
-				event.getNumLikes(),event.getEventLevel().intValue(), event.getId());
-				*/
-				
+		Timestamp timestamp = new Timestamp(event.getWhen().getTimeInMillis());
+		this.jdbcTemplate.update("update events set `when` = ?, summary = ?, description = ?,"
+				+ " owner = ?, num_likes = ?, event_level = ? where id = ?",
+				timestamp, event.getSummary(), event.getDescription(), event.getOwner().getId().intValue(),
+				event.getNumLikes(), event.getEventLevel().intValue(), event.getId() );
+
 	}
 }

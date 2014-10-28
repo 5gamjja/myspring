@@ -7,9 +7,13 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
+import com.mycompany.myapp.dao.CalendarUserDao;
+import com.mycompany.myapp.dao.EventAttendeeDao;
+import com.mycompany.myapp.dao.EventDao;
 import com.mycompany.myapp.domain.CalendarUser;
 import com.mycompany.myapp.domain.Event;
 import com.mycompany.myapp.domain.EventAttendee;
@@ -29,6 +33,19 @@ public class CalendarServiceTest {
 	@Autowired
 	private CalendarService calendarService;	
 
+	@Autowired
+	private EventDao eventDao;
+
+	@Autowired
+	private CalendarUserDao userDao;
+
+	@Autowired
+	private EventAttendeeDao eventAttendeeDao;
+
+	@Autowired
+	private PlatformTransactionManager transactionManager;
+
+	
 	private CalendarUser[] calendarUsers = null;
 	private Event[] events = null;
 	private EventAttendee[] eventAttentees = null;
@@ -37,6 +54,9 @@ public class CalendarServiceTest {
 
 	private static final int numInitialNumUsers = 12;
 	private static final int numInitialNumEvents = 4;
+	
+	
+		
 
 	@Before
 	public void setUp() {
@@ -93,7 +113,6 @@ public class CalendarServiceTest {
 		assertThat(calendarService, notNullValue() );
 	}
 	
-	
 	@Test
 	public void upgradeEventLevels() throws Exception{
 		this.calendarService.upgradeEventLevels();
@@ -116,7 +135,10 @@ public class CalendarServiceTest {
 	
 	@Test
 	public void upgradeAllOrNothing() throws Exception{
-		CalendarService testCalendarService = new TestCalendarService(events[3].getId());
+		TestCalendarService testCalendarService = new TestCalendarService(events[3].getId());
+		testCalendarService.setEventDao(eventDao);
+		testCalendarService.setTransactionManager(transactionManager);
+		
 		try {
 			testCalendarService.upgradeEventLevels();
 			fail("TestUserServiceException expected");
@@ -135,7 +157,6 @@ public class CalendarServiceTest {
 		}
 		
 		public void upgradeEventLevel(Event event) {
-			System.out.println("aaa");
 			if ( event.getId().equals(this.faultId) ) throw new TestCalenadarServiceException();
 			super.upgradeEventLevel(event);
 		}
